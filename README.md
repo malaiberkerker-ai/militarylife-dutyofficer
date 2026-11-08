@@ -83,3 +83,10 @@ npm run dev
 詳細驗證與尚未完成的實測見 [QA.md](QA.md)。GitHub 匯出不包含託管身分檔、憑證、node_modules、編譯輸出及原始參考檔。靜態部署只需執行 build 並託管 dist。
 
 Three.js 實作參照官方 [場景入門](https://threejs.org/manual/pages/creating-a-scene.html) 與 [OrthographicCamera 文件](https://threejs.org/docs/pages/OrthographicCamera.html)。套件版本以 package-lock.json 為準。
+
+
+### 本次更新：領用與出發
+先在安官桌喊開庫，再到軍械室完成 80 人人槍配對、安官檢查與 80 秒簽團領。漏簽仍可繼續，可能被督導抽查列缺失。集合場需清槍確認，另點靶勤車；漏點出發後會被連長責問並要求補派。參考內容採敘事與抽象互動，不模擬槍械操作。
+
+詳細測試紀錄見 [QA_STEALTH_ARMORY.md](QA_STEALTH_ARMORY.md)。
+

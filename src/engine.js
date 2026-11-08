@@ -1,5 +1,5 @@
 import {validatePhone} from './phone-event.js';
-import {validateRange} from './range-day.js';
+import {validateRange,prepareRange} from './range-day.js';
 import {roomIds} from './camp.js';
 import {validateInspection} from './inspection.js';
 export const SAVE_KEY = 'duty-officer-prototype-v1';
@@ -34,9 +34,10 @@ export function decide(state,action){
 }
 export function restoreState(raw){
   try{const s=JSON.parse(raw);if(s.version!==1||!Number.isInteger(s.stage)||s.stage<0||s.stage>4||!roomIds.includes(s.location)||!['trust','rapport','energy'].every(k=>Number.isFinite(s[k])&&s[k]>=0&&s[k]<=100)||!Array.isArray(s.history)||s.history.length>2000||s.history.some(h=>typeof h.text!=='string'||typeof h.time!=='string')||!validateInspection(s.inspection)||!validateRange(s.rangeDay)||!validatePhone(s.phoneEvent)||(s.phoneEvent!=null&&!roomIds.includes(s.phoneEvent.returnTo?.location))||(s.inspection!=null&&s.rangeDay!=null))return null;
-    const base=initialState();const result={...base,...s};if(result.dayId!==null&&!days.some(d=>d.id===result.dayId))return null;for(const k of ['verified','completed','summarySeen','started','lowQuality'])if(typeof result[k]!=='boolean')return null;
+    const base=initialState();const result={...base,...s};result.rangeDay=prepareRange(result.rangeDay);if(result.dayId!==null&&!days.some(d=>d.id===result.dayId))return null;for(const k of ['verified','completed','summarySeen','started','lowQuality'])if(typeof result[k]!=='boolean')return null;
     if(!Number.isFinite(s.x)||!Number.isFinite(s.z)||!Number.isFinite(s.facing)){result.x=0;result.z=s.location==='yard'?5:4;result.facing=0;}
     if(result.completed!==(result.stage===4))return null;return result;
   }catch{return null;}
 }
 export function targetFor(s){if(s.stage===0||s.stage===3)return s.location==='yard'?'sergeant':'yard-door';if(s.stage===1)return s.location==='yard'?'board':'yard-door';if(s.stage===2)return s.location==='office'?'commander':'office-door';return null;}
+
