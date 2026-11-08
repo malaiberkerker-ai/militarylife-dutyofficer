@@ -1,0 +1,5 @@
+import {test} from 'node:test';import assert from 'node:assert/strict';
+import {arrivalActor,arrivalActors,arrivalProximity} from '../src/arrival-stage.js';
+test('3D事件角色依階段出場，集合場外不提供遠端對話',()=>{for(const [phase,key]of [['visitor','visitor'],['impostor','impostor'],['drill','impostor'],['final','commander']]){const a=arrivalActor({phase});assert.equal(a.id,arrivalActors[key].id);const s={arrivalEvent:{phase},location:'yard',x:a.x,z:a.z+2};assert.equal(arrivalProximity(s,a.id),true);assert.equal(arrivalProximity({...s,x:a.x+4},a.id),false);assert.equal(arrivalProximity({...s,location:'office'},a.id),false);assert.equal(arrivalProximity(s,'sergeant'),false);}for(const phase of ['brief','prep','verify','done'])assert.equal(arrivalActor({phase}),null);assert.equal(arrivalActor(null),null);});
+test('三位角色位置避開隊形與班長，身份與顏色可區分',()=>{const actors=Object.values(arrivalActors);assert.equal(new Set(actors.map(a=>a.id)).size,3);assert.equal(new Set(actors.map(a=>a.color)).size,3);for(const a of actors){assert.ok(a.x<0&&a.x>-12);assert.ok(Math.hypot(a.x+3.5,a.z-1)>1);}});
+
