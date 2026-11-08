@@ -1,0 +1,21 @@
+import {arrivalActive,beginArrival,rollArrival,arrivalStep} from './arrival-event.js';
+export function createArrivalUI(ctx){const $=s=>document.querySelector(s),make=(tag,text)=>{const n=document.createElement(tag);if(text!==undefined)n.textContent=text;return n;};const panel=make('section');panel.id='arrival-panel';panel.className='panel range-panel hidden';panel.setAttribute('role','dialog');panel.setAttribute('aria-modal','true');panel.setAttribute('aria-labelledby','arrival-title');$('#overlay').append(panel);let elapsed=0;
+const entry=make('button','✦ 新連長到任事件');entry.className='secondary';entry.onclick=()=>{if(ctx.state().phoneEvent?.phase==='stealth'){ctx.toast('請先完成老班長躲避。');return;}if(!ctx.state().started||!ctx.state().dayId){ctx.toast('先抽取今日行程並開始值星，再體驗到任事件。');return;}if(!ctx.state().arrivalEvent)ctx.commit(beginArrival(ctx.state()));open();};$('#menu').insertBefore(entry,$('#resume-btn'));
+const badge=make('button','✦ 到任插曲：繼續處理');badge.className='phone-ring hidden';badge.style.bottom='90px';badge.onclick=open;$('#app').append(badge);
+function button(text,run){const b=make('button',text);b.className='secondary';b.onclick=run;panel.append(b);}
+function act(action,payload){const old=ctx.state(),next=arrivalStep(old,action,payload);if(next===old)return;const ended=next.arrivalEvent.phase==='done';ctx.commit(next,ended);open();}
+function visit(location){ctx.panel(null);ctx.travel(location);open();}
+function at(location,run){if(ctx.state().location===location)run();else button('前往'+({yard:'連集合場',barracks:'士兵寢室',toilet:'廁所','duty-desk':'安官桌'}[location]),()=>visit(location));}
+function open(){const s=ctx.state(),e=s.arrivalEvent;if(!e)return;panel.replaceChildren();const kicker=make('div','CHANGE OF COMMAND · 隨機插曲');kicker.className='eyebrow';const h=make('h2','連長調走，新連長到任');h.id='arrival-title';panel.append(kicker,h,make('p','原任務暫存｜全連 100 人｜混亂 '+e.confusion+'｜班長'+(e.cooperate?'合作中':'等待協調')));const line=make('p',s.history.filter(x=>x.time==='插曲').at(-1)?.text??'');line.className='entry';panel.append(line);
+if(e.phase==='brief'){panel.append(make('p','陳班長：「動作快！聽說新連長連棉被的稜線都會點名。你先別跟著緊張，告訴我怎麼分工。」'));button('找班長合作，先對齊分工',()=>act('cooperate'));button('先催大家整理，等等再核對',()=>act('rush'));}
+if(e.phase==='prep'){panel.append(make('p','迎接準備 '+e.tasks.length+'/3。到各區完成分工，最後回集合場迎接。'));for(const [task,loc,label]of [['bedding','barracks','請班長帶隊整理寢室'],['toilet','toilet','確認廁所清潔與訪客動線'],['roster','yard','核對全連100人人員動態']])if(!e.tasks.includes(task))at(loc,()=>button(label,()=>act('task',{task})));if(e.tasks.length===3)at('yard',()=>button('準備完成，迎接來人',()=>act('ready')));}
+if(e.phase==='visitor')at('yard',()=>{panel.append(make('p','洽公訪客走到集合場邊，班長已經深吸一口氣準備喊立正。'));button('先問來意，請安官確認',()=>act('check-visitor'));button('立正！報告人數，恭請訓話',()=>act('salute'));});
+if(e.phase==='impostor')at('yard',()=>{panel.append(make('p','另一位來人：「怎麼站的！誰是值星官？棉被疊得像早餐，我看臉盆都比你們會帶隊！」他沒出示通知就開始發號施令。'));button('請安官查證到任通知',()=>act('verify'));button('找班長商量，一人穩隊伍、一人查證',()=>act('consult'));if(!e.drillDone)button('先配合演出，看看他要做什麼',()=>act('perform'));});
+if(e.phase==='drill')at('yard',()=>{const labels=['棉被','臉盆','拖鞋'];panel.append(make('p','道具排列 '+e.drillIndex+'/3：請選「'+labels[e.drillIndex]+'」。來人：「先按我剛才沒說的順序排！」'));for(const [item,label]of [['quilt','棉被'],['basin','臉盆'],['slippers','拖鞋']])button('排列'+label,()=>act('arrange',{item}));button('停止演出，請安官查證',()=>act('stop'));});
+if(e.phase==='verify')at('duty-desk',()=>button('核對姓名、到任通知與接洽窗口',()=>act('evidence')));
+if(e.phase==='final')at('yard',()=>{panel.append(make('p','許新連長：「我還沒到，聽說有人已經替我訓過話了？值星官，說明一下。」'));button('如實說明誤會、查證與100人人員狀態',()=>act('honest'));button('都是班長認錯人，跟我沒關係',()=>act('blame'));});
+if(e.phase==='done'){panel.append(make('h3','結局：'+e.ending));button('返回原本任務',()=>ctx.panel(null));}else button('暫停插曲，稍後繼續',()=>ctx.panel(null));ctx.panel('arrival-panel');updateBadge();}
+function updateBadge(){badge.classList.toggle('hidden',!arrivalActive(ctx.state()));}
+function update(dt,paused){updateBadge();const s=ctx.state();if(paused||arrivalActive(s)||s.arrivalRolled||s.arrivalEvent||!s.started||!s.dayId||s.phoneEvent?.phase==='stealth')return;elapsed+=dt;if(elapsed>=50){const next=rollArrival(s,crypto.getRandomValues(new Uint32Array(1))[0]/4294967296);ctx.commit(next);if(arrivalActive(next))open();}}
+return {open,update,handle(){if(!arrivalActive(ctx.state()))return false;open();return true;}};}
+

@@ -1,3 +1,4 @@
+import {validateArrival} from './arrival-event.js';
 import {validatePhone} from './phone-event.js';
 import {validateRange,prepareRange} from './range-day.js';
 import {roomIds} from './camp.js';
@@ -19,7 +20,7 @@ export const missions = [
   ['回集合場，跟班長對齊做法','離開辦公室，找陳班長完成交接。','06:00'],
   ['雛形任務完成','可以繼續探索，或重新開始體驗其他選擇。','06:10']
 ];
-export function initialState(){return {version:1,stage:0,dayId:null,inspection:null,rangeDay:null,phoneEvent:null,location:'yard',x:0,z:5,facing:0,trust:50,rapport:50,energy:70,approach:null,report:null,finalChoice:null,verified:false,completed:false,summarySeen:false,started:false,lowQuality:false,history:[]};}
+export function initialState(){return {version:1,stage:0,dayId:null,inspection:null,rangeDay:null,phoneEvent:null,arrivalEvent:null,arrivalRolled:false,location:'yard',x:0,z:5,facing:0,trust:50,rapport:50,energy:70,approach:null,report:null,finalChoice:null,verified:false,completed:false,summarySeen:false,started:false,lowQuality:false,history:[]};}
 const clamp = n => Math.max(0,Math.min(100,n));
 export function decide(state,action){
   const s=structuredClone(state),day=dayFor(s);let note='';
@@ -33,7 +34,7 @@ export function decide(state,action){
   s.history.push({time:missions[state.stage][2],text:note});return s;
 }
 export function restoreState(raw){
-  try{const s=JSON.parse(raw);if(s.version!==1||!Number.isInteger(s.stage)||s.stage<0||s.stage>4||!roomIds.includes(s.location)||!['trust','rapport','energy'].every(k=>Number.isFinite(s[k])&&s[k]>=0&&s[k]<=100)||!Array.isArray(s.history)||s.history.length>2000||s.history.some(h=>typeof h.text!=='string'||typeof h.time!=='string')||!validateInspection(s.inspection)||!validateRange(s.rangeDay)||!validatePhone(s.phoneEvent)||(s.phoneEvent!=null&&!roomIds.includes(s.phoneEvent.returnTo?.location))||(s.inspection!=null&&s.rangeDay!=null))return null;
+  try{const s=JSON.parse(raw);if(s.version!==1||!Number.isInteger(s.stage)||s.stage<0||s.stage>4||!roomIds.includes(s.location)||!['trust','rapport','energy'].every(k=>Number.isFinite(s[k])&&s[k]>=0&&s[k]<=100)||!Array.isArray(s.history)||s.history.length>2000||s.history.some(h=>typeof h.text!=='string'||typeof h.time!=='string')||!validateInspection(s.inspection)||!validateRange(s.rangeDay)||!validatePhone(s.phoneEvent)||!validateArrival(s.arrivalEvent)||(s.arrivalRolled!==undefined&&typeof s.arrivalRolled!=='boolean')||(s.phoneEvent!=null&&!roomIds.includes(s.phoneEvent.returnTo?.location))||(s.inspection!=null&&s.rangeDay!=null))return null;
     const base=initialState();const result={...base,...s};result.rangeDay=prepareRange(result.rangeDay);if(result.dayId!==null&&!days.some(d=>d.id===result.dayId))return null;for(const k of ['verified','completed','summarySeen','started','lowQuality'])if(typeof result[k]!=='boolean')return null;
     if(!Number.isFinite(s.x)||!Number.isFinite(s.z)||!Number.isFinite(s.facing)){result.x=0;result.z=s.location==='yard'?5:4;result.facing=0;}
     if(result.completed!==(result.stage===4))return null;return result;
