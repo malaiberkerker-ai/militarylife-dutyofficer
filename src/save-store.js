@@ -1,0 +1,11 @@
+import {SAVE_KEY,restoreState} from './engine.js';
+export const SAVE_VERSION=2;
+export const UPGRADE_BACKUP=SAVE_KEY+'.before-v2';
+export const LAST_BACKUP=SAVE_KEY+'.previous';
+export function decodeSave(raw){if(typeof raw!=='string'||raw.length>2000000)return null;try{const data=JSON.parse(raw);if('saveVersion'in data){if(data.saveVersion!==SAVE_VERSION)return null;return restoreState(JSON.stringify(data.state));}return restoreState(raw);}catch{return null;}}
+export function encodeSave(state){if(!restoreState(JSON.stringify(state)))throw Error('存檔狀態驗證未通過');return JSON.stringify({saveVersion:SAVE_VERSION,savedAt:new Date().toISOString(),state});}
+export function loadSave(storage){const raw=storage.getItem(SAVE_KEY);if(!raw)return {state:null,canWrite:true,warning:''};const state=decodeSave(raw);if(!state)return {state:decodeSave(storage.getItem(LAST_BACKUP))??decodeSave(storage.getItem(UPGRADE_BACKUP)),canWrite:false,warning:'目前存檔損壞或版本較新，已保留原檔並停止自動寫入。可匯出原檔，或在存檔管理明確恢復有效備份。'};const data=JSON.parse(raw);if(data.saveVersion===undefined){try{if(!storage.getItem(UPGRADE_BACKUP))storage.setItem(UPGRADE_BACKUP,raw);storage.setItem(SAVE_KEY,encodeSave(state));return {state,canWrite:true,warning:'舊存檔已先完整備份，再升級為第2版；原有章節與位置保留。'};}catch{return {state,canWrite:false,warning:'備份或升級無法寫入，已停止自動儲存；請先匯出存檔。'};}}return {state,canWrite:true,warning:''};}
+export function writeSave(storage,state){const raw=storage.getItem(SAVE_KEY);if(raw&&!decodeSave(raw))throw Error('原檔無法辨識，拒絕覆蓋');const next=encodeSave(state);if(raw)storage.setItem(LAST_BACKUP,raw);storage.setItem(SAVE_KEY,next);}
+export function recoverBackup(storage){const raw=[storage.getItem(LAST_BACKUP),storage.getItem(UPGRADE_BACKUP)].find(r=>decodeSave(r));const state=decodeSave(raw);if(!state)throw Error('沒有可讀取的備份');const current=storage.getItem(SAVE_KEY);if(current)storage.setItem(SAVE_KEY+'.before-recovery',current);storage.setItem(SAVE_KEY,encodeSave(state));return state;}
+export function importSave(storage,raw){const state=decodeSave(raw);if(!state)throw Error('檔案格式、版本或內容無效，未修改原進度');const current=storage.getItem(SAVE_KEY);if(current)storage.setItem(SAVE_KEY+'.before-import',current);storage.setItem(SAVE_KEY,encodeSave(state));return state;}
+

@@ -1,0 +1,3 @@
+import {test} from 'node:test';import assert from 'node:assert/strict';import {initialState} from '../src/engine.js';import {beginMorning,morningStep as step} from '../src/morning.js';
+test('10點工作截止不越界，時間不倒退，委派仍可在邊界完成',()=>{let s=beginMorning(initialState(),0);for(let i=0;i<11;i++)s=step(s,'wait',{minutes:5});s=step(s,'assign',{task:'report',worker:'player'});s=step(s,'work',{minutes:10});assert.equal(s.morning.clock,600);assert.equal(s.morning.tasks[0].progress,5);assert.equal(step(s,'work',{minutes:10}),s);assert.equal(step(s,'wait',{minutes:5}),s);s=step(s,'close');assert.equal(s.morning.clock,600);s=step(s,'wait-call');assert.equal(s.morning.clock,615);});
+
