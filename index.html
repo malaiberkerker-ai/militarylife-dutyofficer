@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/><meta name="theme-color" content="#27382f"/><meta name="description" content="連值星官的一天：走動探索、人物對話與營區日常選擇。Three.js 可玩雛形。"/><title>連值星官的一天｜可玩雛形</title></head>
+<body>
+<main id="app">
+  <div id="world" aria-label="第三人稱斜俯視營區場景"></div>
+  <header class="topbar">
+    <a class="brand" href="#" id="brand"><span class="insignia">值</span><span><b>連值星官的一天</b><small>COMPANY 100 · PROTOTYPE 03</small></span></a>
+    <div class="time"><span class="live-dot"></span><span id="clock">05:40</span><span class="weather" id="day-badge">今日行程待抽</span></div>
+    <button class="icon-btn" id="menu-btn" aria-label="開啟操作與設定">☰</button>
+  </header>
+  <section class="mission" aria-label="目前任務"><div class="eyebrow">今日值星 <span id="chapter-count">01 / 04</span></div><h1 id="mission-title">先跟值星班長碰個面</h1><p id="mission-text">走近集合場的陳班長，按 E 交談。</p><div class="progress"><i id="mission-progress"></i></div><button class="text-btn" id="guide-btn">◎ 顯示任務方向</button></section>
+  <aside class="stats" aria-label="值星狀態"><div><span>連長信任</span><b id="trust">50</b></div><div><span>班長默契</span><b id="rapport">50</b></div><div><span>精力</span><b id="energy">70</b></div></aside>
+  <div class="location"><span class="location-mark">⌖</span><span><small>目前位置</small><b id="location-name">連集合場</b></span><span class="location-index" id="location-index">01</span></div>
+  <div id="npc-labels" aria-hidden="true"></div>
+  <div id="waypoint" aria-hidden="true">◇<span>任務目標</span></div>
+  <button id="interact" class="interact hidden"><kbd>E</kbd><span id="interact-text">與陳班長交談</span><span>↗</span></button>
+  <div class="controls"><span><kbd>W</kbd><span class="key-row"><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd></span></span><span>走動探索<br><small>E 互動 · Esc 選單</small></span></div>
+  <button class="journal-btn" id="journal-btn"><span>▤</span> 值星記事 <i id="journal-dot"></i></button>
+  <div id="toast" role="status" class="toast hidden"></div>
+  <div id="touch-controls"><div class="dpad"><button data-dir="up" aria-label="向前走">▲</button><button data-dir="left" aria-label="向左走">◀</button><button data-dir="down" aria-label="向後走">▼</button><button data-dir="right" aria-label="向右走">▶</button></div><button id="touch-interact">互動</button></div>
+  <section id="dialogue" class="dialogue hidden" role="dialog" aria-modal="true" aria-labelledby="speaker-name"><div class="portrait" id="portrait"></div><div class="dialogue-content"><div class="speaker-line"><span id="speaker-role"></span><b id="speaker-name"></b><span id="expression"></span><button id="dialogue-close" aria-label="暫停對話">×</button></div><p id="dialogue-text"></p><div id="choices"></div><small class="dialogue-hint">選擇後會先顯示回應 · 對話期間暫停移動</small></div></section>
+  <div id="overlay" class="overlay"><section id="welcome" class="welcome panel" role="dialog" aria-modal="true" aria-labelledby="welcome-title"><div class="eyebrow">互動敘事 × 營區日常</div><p class="welcome-pre">05:40，鬧鐘還沒響。</p><h2 id="welcome-title">今天，<br>換你背值星。</h2><p class="intro">一個連的大小事，一條值星帶。<br>在連長、班長與弟兄之間，找到你的做事方式。</p><div class="welcome-tags"><span>01 走動探索</span><span>02 人物對話</span><span>03 你的選擇</span></div><button id="start-btn" class="primary">開始今天的值星 <span>→</span></button><p class="fine-print">100 人連隊營區；清晨、打靶日、督導日與隨機來電插曲。<br>角色與單位均為虛構，進度自動儲存在此瀏覽器。</p></section>
+  <section id="draw" class="panel draw-panel hidden" role="dialog" aria-modal="true" aria-labelledby="draw-title"><div class="eyebrow">DAILY ASSIGNMENT · 今日行程</div><h2 id="draw-title">今天會是哪一種日子？</h2><p id="draw-intro">值星帶背上去之前，先看看今天的安排。五種行程，隨機抽取一種。</p><div id="day-options" class="day-options"></div><div id="draw-result" class="hidden"><div id="draw-day-icon" class="draw-icon"></div><h3 id="draw-day-name"></h3><p id="draw-day-tag"></p><p id="draw-day-brief"></p><ol id="draw-day-agenda"></ol></div><button id="draw-btn" class="primary">抽取今天的行程 <span>↻</span></button><button id="accept-day-btn" class="primary hidden">收到，開始值星 →</button><p class="fine-print">打靶日與督導日已開放完整章節；其餘日型的後續時段仍為預告。抽到的結果會保存，重新整理不會重抽。</p></section>
+  <section id="menu" class="panel hidden" role="dialog" aria-modal="true" aria-labelledby="menu-title"><div class="eyebrow">DUTY DESK</div><h2 id="menu-title">值星操作手冊</h2><p>WASD／方向鍵：沿畫面方向走動<br>E／Enter：與附近人物、物件互動<br>Esc：暫停／返回</p><p>先找陳班長 → 核對點名板 → 進連辦公室向連長回報 → 回集合場與班長交接。</p><label class="setting"><input id="low-quality" type="checkbox"/> 低畫質（降低陰影與解析度）</label><button id="safe-btn" class="secondary">返回目前區域安全位置</button><button id="restart-btn" class="secondary">重新開始這一輪</button><button class="primary" id="resume-btn">繼續探索 →</button><p class="fine-print">本版包含 100 人名冊、營區探索、打靶日與督導日章節，以及未顯示號碼來電插曲。素材皆為程式繪製。</p></section>
+  <section id="journal" class="panel hidden" role="dialog" aria-modal="true" aria-labelledby="journal-title"><div class="eyebrow">FIELD NOTES</div><h2 id="journal-title">值星記事</h2><div id="journal-content"></div><button class="primary" id="journal-close">回到現場 →</button></section>
+  <section id="summary" class="panel hidden" role="dialog" aria-modal="true" aria-labelledby="summary-title"><div class="eyebrow">PROTOTYPE COMPLETE</div><h2 id="summary-title">清晨這關，過了。</h2><p id="summary-text"></p><div id="summary-stats"></div><p>你已完成集合場與連辦公室的探索、點名核對及人物對話。打靶與督導章節已可從選單試玩；五查待後續擴充。</p><button class="primary" id="explore-btn">留在營區繼續走走 →</button><button class="secondary" id="again-btn">換個做法，再值一次</button></section>
+  <section id="restart" class="panel hidden" role="dialog" aria-modal="true" aria-labelledby="restart-title"><h2 id="restart-title">重新接一次值星？</h2><p>這會清除目前雛形的進度與選擇紀錄。</p><button id="restart-confirm" class="primary">確認重新開始</button><button id="restart-cancel" class="secondary">保留進度，返回</button></section>
+  </div>
+  <div id="fallback" class="hidden"><h2>簡化探索</h2><p>用地點與互動按鈕探索，沿用相同任務、對話與改善規則。</p><div id="fallback-actions"></div></div>
+</main><script type="module" src="/src/main.js"></script>
+</body></html>
