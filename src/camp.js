@@ -1,6 +1,6 @@
 export const rooms = [
   {id:'yard',name:'連集合場',type:'yard',group:'戶外',purpose:'早晚點名、任務分工、出發與返營清查。'},
-  {id:'office',name:'連辦公室',type:'office',group:'行政',purpose:'人員動態、行政簿冊及督導紀錄核對。'},
+  {id:'office',name:'連辦公室',type:'office',group:'行政',purpose:'業務人員作業空間：文書、行政表單、人員動態與簿冊核對；連長在連長室。'},
   {id:'commander-room',name:'連長室',type:'executive',group:'幹部',npc:'commander',person:'林連長',role:'連長',purpose:'課前會議、任務回報與行程確認。'},
   {id:'csm-room',name:'士督長室',type:'executive',group:'幹部',npc:'csm',person:'許士督長',role:'士督長',purpose:'勤務協調、裝備管理與幹部提醒。'},
   {id:'counselor-room',name:'輔導長室',type:'counsel',group:'幹部',npc:'counselor',person:'蔡輔導長',role:'輔導長',purpose:'人員關懷、反映問題及休息安排。'},
@@ -36,9 +36,10 @@ export function attendance(day){return company.map((person,index)=>({...person,s
 export function fallbackTargets(s){const r=roomById(s.location);let list=[];const target=(id,name)=>({id,name});
   if(r.id==='hide-yard')return [];
   if(r.id==='yard')list=[target('sergeant','與陳班長交談'),target('board','查看早點名板'),target('office-door','前往連辦公室'),target('go:corridor','前往營舍走廊'),target('go:range','前往靶場')];
-  else if(r.id==='office')list=[target('commander','向林連長回報'),target('clerk','與吳文書交談'),target('yard-door','回到集合場'),target('go:corridor','前往營舍走廊')];
+  else if(r.id==='office')list=[target('operations','與趙業務士交談'),target('clerk','與吳文書交談'),target('yard-door','回到集合場'),target('go:corridor','前往營舍走廊')];
   else if(r.id==='corridor')list=rooms.filter(x=>!['corridor','hide-yard'].includes(x.id)).map(x=>target('go:'+x.id,'前往'+x.name));
   else if(r.id==='range')list=[target('range-officer','與周管制官交談'),target('target-game','打靶操作台'),target('go:yard','返營集合場')];
   else{if(r.npc)list.push(target(r.npc,'與'+r.person+'交談'));list.push(target('info:'+r.id,'查看'+r.name+'紀錄'),target('go:corridor','返回營舍走廊'));}
   if(s.inspection){if(r.id==='yard'){list.push(target('repair-yard','檢查整理區'));if(s.inspection.phase==='yardCheck')list.push(target('inspector','與周督導官交談'));}else if(r.id==='office')list.push(target('inspector','與周督導官交談'),target('repair-log','核對紀錄'),target('repair-safety','設備列管改善'));}return list;
 }
+

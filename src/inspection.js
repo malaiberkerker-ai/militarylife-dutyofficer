@@ -14,7 +14,7 @@ export function validateInspection(value){
   return (value.minute===undefined||Number.isInteger(value.minute)&&value.minute>=540&&value.minute<10000)&&value.findings.every(f=>{const type=issueTypes.find(i=>i.id===f.id);return type&&f.severity===type.severity&&['listed','working','pending','closed'].includes(f.status)&&typeof f.evidence==='string'&&typeof f.penaltyApplied==='boolean'&&typeof f.proof==='string'&&(f.owner===null||typeof f.owner==='string')&&typeof f.checked==='boolean';})&&(['done','recheck'].includes(value.phase)?value.findings.every(f=>f.status==='pending'||f.status==='closed'):true)&&(value.phase!=='done'||value.findings.every(f=>f.status==='closed'));
 }
 export function beginInspection(state){if(state.inspection)return state;const s=structuredClone(state);s.inspection=newInspection();s.dayId='supervision';return s;}
-export function inspectionMission(s){const i=s.inspection;if(!i)return null;const route=id=>s.location==='yard'?id:'yard-door',office=id=>s.location==='office'?id:'office-door';
+export function inspectionMission(s){const i=s.inspection;if(!i)return null;const route=id=>id,office=id=>id;
   const data={
     prep:['督導前，先排準備順序','找陳班長安排最多兩項準備。','09:00',route('sergeant'),1],
     yardCheck:['督導官抵達集合場','走近周督導官，陪同現場查核。','10:00',route('inspector'),2],
@@ -24,7 +24,7 @@ export function inspectionMission(s){const i=s.inspection;if(!i)return null;cons
     repair:['到現場完成改善','依缺失單前往指定位置，完成查證與改善。','11:00',null,6],
     recheck:['請督導官複查','到辦公室找周督導官，提出改善證據。','11:30',office('inspector'),7],
     done:['督導缺失已完成複查','查看督導回顧，或繼續探索營區。','11:40',null,8]
-  }[i.phase];const result=[...data];if(i.phase==='repair'){const open=i.findings.filter(f=>f.status!=='pending'&&f.status!=='closed');const f=open.find(f=>f.severity==='major')??open[0];if(f){const type=issueTypes.find(t=>t.id===f.id);result[3]=s.location===type.location?type.target:type.location==='office'?'office-door':'yard-door';result[1]=`${type.name}：${type.fix}。`;}}const [h,m]=result[2].split(':').map(Number),minute=Math.max(h*60+m,i.minute??540);result[2]=`${String(Math.floor(minute/60)).padStart(2,'0')}:${String(minute%60).padStart(2,'0')}`;return result;
+  }[i.phase];const result=[...data];if(i.phase==='repair'){const open=i.findings.filter(f=>f.status!=='pending'&&f.status!=='closed');const f=open.find(f=>f.severity==='major')??open[0];if(f){const type=issueTypes.find(t=>t.id===f.id);result[3]=type.target;result[1]=`${type.name}：${type.fix}。`;}}const [h,m]=result[2].split(':').map(Number),minute=Math.max(h*60+m,i.minute??540);result[2]=`${String(Math.floor(minute/60)).padStart(2,'0')}:${String(minute%60).padStart(2,'0')}`;return result;
 }
 export function inspectionStep(state,action,payload={},expectedRevision=state.inspection?.revision){
   if(!state.inspection||expectedRevision!==state.inspection.revision)return state;
@@ -51,3 +51,4 @@ export function inspectionStep(state,action,payload={},expectedRevision=state.in
   const [h,m]=time.split(':').map(Number);i.minute=Math.max(i.minute??540,h*60+m)+5;
   for(const key of ['trust','rapport','energy'])s[key]=Math.max(0,Math.min(100,s[key]));i.revision++;s.history.push({time,text:note});return s;
 }
+

@@ -4,3 +4,5 @@
 
 button.npc-label{pointer-events:auto;cursor:pointer;font:inherit;color:inherit;border:1px solid #d9d0aa66}button.npc-label:hover{outline:2px solid #e7c27a}.secondary[role=button]{display:block;text-align:center;text-decoration:none}
 
+.campus-map{display:block;width:100%;min-height:230px;background:#9eaf8c;border-radius:8px;margin:12px 0 18px}
+

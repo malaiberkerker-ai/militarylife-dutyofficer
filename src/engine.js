@@ -18,8 +18,8 @@ export function drawDay(state,index){if(state.dayId)return state;const next=stru
 export const missions = [
   ['先跟值星班長碰個面','走近集合場的陳班長，按 E 交談。','05:40'],
   ['核對早點名的人數','查看點名板，核對在場與報備人員。','05:45'],
-  ['到連辦公室向連長回報','走到集合場北側的辦公室入口。','05:50'],
-  ['回集合場，跟班長對齊做法','離開辦公室，找陳班長完成交接。','06:00'],
+  ['到連長室向連長回報','沿行政走廊進連長室；連辦公室由業務人員作業。','05:50'],
+  ['回集合場，跟班長對齊做法','離開連長室，沿走廊回集合場找陳班長交接。','06:00'],
   ['雛形任務完成','可以繼續探索，或重新開始體驗其他選擇。','06:10']
 ];
 export function initialState(){return {version:1,stage:0,dayId:null,inspection:null,rangeDay:null,phoneEvent:null,arrivalEvent:null,arrivalRolled:false,morning:null,morale:50,crewMemory:{helped:0,blamed:0},location:'yard',x:0,z:5,facing:0,trust:50,rapport:50,energy:70,approach:null,report:null,finalChoice:null,verified:false,completed:false,summarySeen:false,started:false,lowQuality:false,history:[]};}
@@ -29,7 +29,7 @@ export function decide(state,action){
   if(s.stage===0&&['cooperate','command'].includes(action)){s.approach=action;s.rapport+=action==='cooperate'?10:-8;s.energy-=action==='cooperate'?3:1;s.stage=1;note=action==='cooperate'?'你與陳班長約定先對齊資訊，再分工處理。':'你要求班長照表執行，暫時拉開了距離。';}
   else if((s.stage===1||s.stage===2&&!s.verified)&&action==='verify'){s.verified=true;s.stage=2;s.energy-=3;note=`核對${day.name}點名板：全連 100 人，在場 ${day.present} 人、${day.dutyLabel} ${day.duty} 人、就醫 ${day.clinic} 人，數量一致。`;}
   else if(s.stage===1&&action==='skip'){s.stage=2;s.trust-=3;note=`你只看在場 ${day.present} 人，尚未核實其餘 ${day.duty+day.clinic} 人的報備。`;}
-  else if(s.stage===2&&['honest','gloss'].includes(action)&&s.location==='office'){s.report=action;s.stage=3;if(action==='honest'){s.trust+=s.verified?12:5;note=s.verified?`你用完整紀錄向連長回報，確認 ${day.duty+day.clinic} 名不在場人員均有報備。`:`你坦承尚有 ${day.duty+day.clinic} 人狀態待核，連長要求你回去補查。`;}else{s.trust-=s.verified?5:15;s.rapport-=3;note='你只說「一切正常」。連長追問細節，要求往後把人數與依據說清楚。';}}
+  else if(s.stage===2&&['honest','gloss'].includes(action)&&s.location==='commander-room'){s.report=action;s.stage=3;if(action==='honest'){s.trust+=s.verified?12:5;note=s.verified?`你用完整紀錄向連長回報，確認 ${day.duty+day.clinic} 名不在場人員均有報備。`:`你坦承尚有 ${day.duty+day.clinic} 人狀態待核，連長要求你回去補查。`;}else{s.trust-=s.verified?5:15;s.rapport-=3;note='你只說「一切正常」。連長追問細節，要求往後把人數與依據說清楚。';}}
   else if(s.stage===3&&['partner','blame'].includes(action)&&s.location==='yard'){s.finalChoice=action;if(s.dayId==='busy'){const key=action==='partner'?'helped':'blamed';s.crewMemory[key]=Math.min(99,s.crewMemory[key]+1);}s.stage=4;s.completed=true;if(action==='partner'){s.rapport+=12;s.energy-=2;s.verified=true;note='你與班長一起確認紀錄，補齊人數狀態，也約定好接下來的分工。';}else{s.rapport-=12;s.energy-=5;note='你把回報壓力推給班長。任務結束了，但彼此的距離更遠了。';}}
   else return state;
   for(const k of ['trust','rapport','energy'])s[k]=clamp(s[k]);
@@ -42,5 +42,5 @@ export function restoreState(raw){
     if(result.completed!==(result.stage===4))return null;return result;
   }catch{return null;}
 }
-export function targetFor(s){if(s.stage===0||s.stage===3)return s.location==='yard'?'sergeant':'yard-door';if(s.stage===1)return s.location==='yard'?'board':'yard-door';if(s.stage===2)return s.location==='office'?'commander':'office-door';return null;}
+export function targetFor(s){return s.stage===0||s.stage===3?'sergeant':s.stage===1?'board':s.stage===2?'commander':null;}
 

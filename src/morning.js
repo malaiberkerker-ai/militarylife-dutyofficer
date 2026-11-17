@@ -1,3 +1,4 @@
+import {chenMemoryLine} from './sergeant-dialogue.js';
 import {morningTasks,morningWorkers,morningChoices} from './morning-data.js';
 import {roomIds} from './camp.js';
 export const morningActive=s=>!!s.morning&&s.morning.phase!=='done';
@@ -19,7 +20,7 @@ else if(m.phase==='followup'&&action==='wait-call'){advance(s,Math.max(0,615-m.c
 else if(m.phase==='followup'&&['facts','blame'].includes(action)&&m.clock>=615){for(const [k,v]of Object.entries(choice.effects))s[k]+=v;if(action==='blame')s.crewMemory.blamed=Math.min(99,s.crewMemory.blamed+1);m.phase=m.mode==='formal'?'aftercare':'done';m.followupSeen=true;note(choice.note);if(m.mode!=='formal')Object.assign(s,m.returnTo);s.history.push({time:'上午回顧',text:'準時'+m.summary.onTime+'/3；'+choice.note});}
 else if(m.phase==='aftercare'&&action==='handover'){advance(s,Math.max(0,660-m.clock));for(const t of m.tasks)if(t.status==='running'){t.status='pending';t.worker=null;}m.phase='done';note('11:00 午前交接完成；未完成事項仍列管：'+(m.tasks.filter(t=>t.status!=='done').map(t=>t.title).join('、')||'無')+'。班長記憶與分派紀錄保留。');s.history.push({time:'11:00',text:m.log.at(-1)});}
 else return state;m.log=m.log.slice(-300);m.revision++;for(const k of ['trust','rapport','energy','morale'])s[k]=Math.max(0,Math.min(100,s[k]));return s;}
-export function chenMemory(s){return s.crewMemory.blamed?'上次你把責任推給我，這次請先把分工記清楚。':s.crewMemory.helped?'你上次先替我理清勤務，這次有衝突我們一起排。':'我也有原本的勤務。先把誰接、什麼時候做講清楚。';}
+export const chenMemory=chenMemoryLine;
 
 export const formalBusy=s=>s.dayId==='busy'&&s.morning?.mode==='formal';
 export function needsFormalMorning(s){return s.dayId==='busy'&&s.stage===4&&!s.rangeDay&&!s.inspection&&!formalBusy(s)&&(!s.morning||s.morning.phase==='done');}
