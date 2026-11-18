@@ -1,3 +1,4 @@
+import {migrateDutyWeek} from './duty-comms.js';
 import {validateWeek} from './week.js';
 import {validFleet} from './fleet.js';
 import {validateMorning} from './morning.js';
@@ -39,7 +40,7 @@ export function decide(state,action){
 }
 export function restoreState(raw){
   try{const s=JSON.parse(raw);if(s.version!==1||!Number.isInteger(s.stage)||s.stage<0||s.stage>4||!roomIds.includes(s.location)||!['trust','rapport','energy'].every(k=>Number.isFinite(s[k])&&s[k]>=0&&s[k]<=100)||!Array.isArray(s.history)||s.history.length>2000||s.history.some(h=>typeof h.text!=='string'||typeof h.time!=='string')||!validateWeek(s.week)||!validFleet(s.fleet)||(s.fleet?.driver&&(!['parking','range','corridor'].includes(s.location)||s.phoneEvent?.phase==='stealth'))||!validateInspection(s.inspection)||!validateRange(s.rangeDay)||!validatePhone(s.phoneEvent)||!validateArrival(s.arrivalEvent)||!validateMorning(s.morning)||(s.morning?.mode==='formal'&&(s.dayId!=='busy'||s.stage!==4))||!validateMorning(s.morningDemoArchive)||(s.morale!==undefined&&(!Number.isFinite(s.morale)||s.morale<0||s.morale>100))||(s.crewMemory!==undefined&&(!s.crewMemory||!['helped','blamed'].every(k=>Number.isInteger(s.crewMemory[k])&&s.crewMemory[k]>=0&&s.crewMemory[k]<=99)))||(s.arrivalRolled!==undefined&&typeof s.arrivalRolled!=='boolean')||(s.phoneEvent!=null&&!roomIds.includes(s.phoneEvent.returnTo?.location))||(s.inspection!=null&&s.rangeDay!=null))return null;
-    const base=initialState();const result={...base,...s};result.rangeDay=prepareRange(result.rangeDay);if(result.dayId!==null&&!days.some(d=>d.id===result.dayId))return null;for(const k of ['verified','completed','summarySeen','started','lowQuality'])if(typeof result[k]!=='boolean')return null;
+    const base=initialState();const result={...base,...s};result.rangeDay=prepareRange(result.rangeDay);migrateDutyWeek(result.week);if(result.dayId!==null&&!days.some(d=>d.id===result.dayId))return null;for(const k of ['verified','completed','summarySeen','started','lowQuality'])if(typeof result[k]!=='boolean')return null;
     if(!Number.isFinite(s.x)||!Number.isFinite(s.z)||!Number.isFinite(s.facing)){result.x=0;result.z=s.location==='yard'?5:4;result.facing=0;}
     if(result.completed!==(result.stage===4))return null;return result;
   }catch{return null;}
