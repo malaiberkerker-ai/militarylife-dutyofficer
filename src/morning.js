@@ -23,6 +23,6 @@ else return state;m.log=m.log.slice(-300);m.revision++;for(const k of ['trust','
 export const chenMemory=chenMemoryLine;
 
 export const formalBusy=s=>s.dayId==='busy'&&s.morning?.mode==='formal';
-export function needsFormalMorning(s){return s.dayId==='busy'&&s.stage===4&&!s.rangeDay&&!s.inspection&&!formalBusy(s)&&(!s.morning||s.morning.phase==='done');}
+export function needsFormalMorning(s){return !s.week&&s.dayId==='busy'&&s.stage===4&&!s.rangeDay&&!s.inspection&&!formalBusy(s)&&(!s.morning||s.morning.phase==='done');}
 export function beginFormalMorning(s,seed=0){if(!needsFormalMorning(s))return s;const base={...s,morning:null};if(s.morning)base.morningDemoArchive=s.morning;const next=beginMorning(base,seed,'formal');if(next===base)return s;next.history.push({time:'06:10 → 09:00',text:'清晨點名、回報與班長交接完成。例行勤務後轉場至連辦公室，接續三件追加工作。早點名成果與班長記憶保留。'});next.morning.log.unshift('06:10清晨交接完成；例行準備快轉至09:00，接續本日正式勤務。');return next;}
 
