@@ -18,6 +18,6 @@ export const surpriseTypes=[
  {id:'rush',title:'連長電話追進度',text:'「菜排！我的人呢？資料呢？你不要又三件都跟我說馬上好！」',good:'依紀錄回報進度、優先與負責人',bad:'三件都答應馬上好，先掛電話',reward:2,penalty:4,critical:false}
 ];
 export const fiveChecks=['人員動態','勤務交接','裝備列管','通訊管制','簿冊核對'];
-export const phoneTemplates={status:'回報你現在的位置與勤務進度。',muster:'請回連集合場集合，先完成手上交接。',support:'請先交接原勤務，再到集合場支援。'};
+export const phoneTemplates={status:'回報你現在的位置與勤務進度。',muster:'請回連集合場集合，先完成手上交接。',support:'請先交接原勤務，再到集合場支援。','redistribute':'請陳班長調人支援（預設3人至雜物間）。','chase-docs':'催文書核對資料（預設今日名冊）。','meal-notice':'通知伙房留餐（預設100份）。'};
 export const weekTime=n=>String(Math.floor(n/60)).padStart(2,'0')+':'+String(Math.floor(n%60)).padStart(2,'0');
 

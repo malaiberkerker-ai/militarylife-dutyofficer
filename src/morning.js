@@ -20,6 +20,7 @@ else if(m.phase==='followup'&&action==='wait-call'){advance(s,Math.max(0,615-m.c
 else if(m.phase==='followup'&&['facts','blame'].includes(action)&&m.clock>=615){for(const [k,v]of Object.entries(choice.effects))s[k]+=v;if(action==='blame')s.crewMemory.blamed=Math.min(99,s.crewMemory.blamed+1);m.phase=m.mode==='formal'?'aftercare':'done';m.followupSeen=true;note(choice.note);if(m.mode!=='formal')Object.assign(s,m.returnTo);s.history.push({time:'上午回顧',text:'準時'+m.summary.onTime+'/3；'+choice.note});}
 else if(m.phase==='aftercare'&&action==='handover'){advance(s,Math.max(0,660-m.clock));for(const t of m.tasks)if(t.status==='running'){t.status='pending';t.worker=null;}m.phase='done';note('11:00 午前交接完成；未完成事項仍列管：'+(m.tasks.filter(t=>t.status!=='done').map(t=>t.title).join('、')||'無')+'。班長記憶與分派紀錄保留。');s.history.push({time:'11:00',text:m.log.at(-1)});}
 else return state;m.log=m.log.slice(-300);m.revision++;for(const k of ['trust','rapport','energy','morale'])s[k]=Math.max(0,Math.min(100,s[k]));return s;}
+export function advanceRemoteMorning(s,minutes){const m=s.morning;if(!m||!['active','aftercare'].includes(m.phase))return;const remaining=(m.phase==='active'?600:660)-m.clock;const amount=Math.max(0,Math.min(Math.floor(minutes),remaining));if(amount){advance(s,amount,false);m.revision++;}}
 export const chenMemory=chenMemoryLine;
 
 export const formalBusy=s=>s.dayId==='busy'&&s.morning?.mode==='formal';
