@@ -15,6 +15,7 @@ export const rooms = [
   {id:'kitchen',name:'伙房',type:'kitchen',group:'餐飲',npc:'cook',person:'鄭伙房班長',role:'伙房',purpose:'出勤留餐、備餐與餐點回報。'},
   {id:'dining',name:'餐廳',type:'dining',group:'餐飲',purpose:'100 人座位配置與用餐集合。'},
   {id:'duty-desk',name:'安官桌',type:'duty',group:'行政',npc:'guard',person:'劉安全士官',role:'安全士官',purpose:'人員動態、外出與返營登記。'},
+  {id:'parking',name:'車輛停車場',type:'parking',group:'車場',purpose:'14輛戰車、2輛中型卡車、3輛吉普車；派車赴靶場與主官裝備檢查。'},
   {id:'corridor',name:'營舍走廊',type:'corridor',group:'通道',purpose:'各室入口與營區導覽。'},
   {id:'range',name:'訓練靶場',type:'range',group:'戶外',npc:'range-officer',person:'周管制官',role:'靶場管制',purpose:'人員與課程確認、抽象打靶小遊戲及物品清點。'}
   ,{id:'hide-yard',name:'營舍外圍',type:'stealth',group:'插曲',purpose:'躲避老班長的小遊戲區。'}

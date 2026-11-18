@@ -6,3 +6,5 @@ button.npc-label{pointer-events:auto;cursor:pointer;font:inherit;color:inherit;b
 
 .campus-map{display:block;width:100%;min-height:230px;background:#9eaf8c;border-radius:8px;margin:12px 0 18px}
 
+.fleet-panel{width:min(640px,94vw)}.fleet-drive{position:absolute;right:32px;bottom:145px;z-index:7;background:#354c35;color:#f4ecd5;border:1px solid #c5b780;padding:13px;border-radius:4px}#work-status{font-size:10px;line-height:1.7;color:#d4d3ad}body.in-dialogue .fleet-drive{display:none}@media(max-width:800px){.fleet-drive{right:16px;bottom:205px}}
+

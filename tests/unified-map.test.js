@@ -6,5 +6,5 @@ test('全營區非插曲房間兩兩可經走廊抵達，路徑不跨越草地�
 test('連長只能在連長室接受早點名回報；業務辦公室不能替代',()=>{let s=decide(initialState(),'cooperate');s=decide(s,'verify');s.location='office';assert.equal(decide(s,'honest'),s);s.location='commander-room';assert.equal(decide(s,'honest').stage,3);});
 test('躲避區維持本地掩體邊界，正常走動不能闖入躲避場',()=>{const p=toCampus('hide-yard',{x:-5,z:3.5});assert.equal(onCampusFloor(p.x,p.z),false);assert.equal(onCampusFloor(p.x,p.z,true),true);assert.equal(onCampusFloor(0,0,true),false);});
 
-test('外側連通走道中途可重新規劃，維持合法地板路徑',()=>{for(const start of [{x:100,z:20},{x:100,z:62},{x:0,z:5}])for(const id of ['office','yard','barracks']){let p=start;for(const end of campusWaypoints(start,toCampus(id,entryPoint(id)))){assert.ok(findWalkPath(p,end,onCampusFloor,12000));p=end;}}});
+test('外側連通走道中途可重新規劃，維持合法地板路徑',()=>{for(const start of [{x:124,z:20},{x:124,z:52},{x:0,z:5}])for(const id of ['office','yard','barracks']){let p=start;for(const end of campusWaypoints(start,toCampus(id,entryPoint(id)))){assert.ok(findWalkPath(p,end,onCampusFloor,12000));p=end;}}});
 
